@@ -67,7 +67,7 @@ jobs:
       - name: Set up SonarCloud Scanner
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          SONAR_TOKEN: d15a898afdb83e0b7b6da739c52aa5aeb1284bec
+          SONAR_TOKEN: e195536526e85fd73b50dc92d0fdfc9ad894ad47
         with:
           args: >
             -Dsonar.organization=mahaputra2512
