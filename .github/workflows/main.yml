@@ -1,0 +1,49 @@
+name: OTF Testing
+on:
+  push:
+    branches:
+      - main
+jobs:
+  test:
+    name: Functional Test
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+
+      - name: Create isolated network
+        run: docker network create --driver bridge isolated
+
+      - name: Build AUT
+        run: docker build -t my-php-site:latest .
+
+      - name: Run AUT using docker-compose
+        run: docker-compose up -d
+
+      - name: Get AUT URL
+        run: |
+          URL=http://$(ip -f inet -o addr show docker0 | awk '{print $4}' | cut -d '/' -f 1)
+          echo "URL=$URL" >> $GITHUB_ENV
+
+      - name: Check AUT URL
+        run: curl ${{ env.URL }}
+
+      - name: Selenium Preparation
+        run: docker run --network=isolated -d -p 4444:4444 -p 7900:7900 -v /dev/shm:/dev/shm --name firefox-standalone selenium/standalone-firefox:latest
+
+      - name: Wait for Selenium Hub
+        run: sh wait.sh
+
+      - name: Check the Hub
+        run: curl http://localhost:4444/ui
+
+      - name: Install Selenium client
+        run: pip install -U selenium pytest pytest-xdist
+
+      - name: Run tests using pytest
+        run: |
+          pytest -v -n 5 tests/
+
+      - name: stop docker
+        run: docker stop docker-apache
