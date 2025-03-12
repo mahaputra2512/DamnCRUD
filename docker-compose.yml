@@ -10,7 +10,7 @@ services:
     image: mysql:latest
     container_name: mysql-container
     environment:
-      MYSQL_ROOT_PASSWORD: 
+      MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: damncrud
     ports:
       - "3306:3306"
